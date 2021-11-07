@@ -1,13 +1,17 @@
 import {useState} from 'react';
 import AsyncList from './AsyncList';
-import {valueInMs} from './reuse/uncat';
+import {valueErrInMs, hookedPromise} from './reuse/uncat';
 
 const UnusedName = () => {
 	const [jobs, setJobs] = useState([]);
 
 	const clicked = async () => {
-		setJobs(j => [...j, j.length]);
-		const v = await valueInMs('a', 2000);
+		const v = await hookedPromise(
+			valueErrInMs('a', 2000),
+			() => setJobs(j => [...j, 'v|'+j.length]),
+			() => setJobs(j => [...j, 'e0|'+j.length]),
+			() => setJobs(j => [...j, 'e1|'+j.length]),
+		);
 		setJobs(j => [...j, v+j.length]);
 	};
 

@@ -11,15 +11,16 @@ const valueErrInMs = (v, ms) => new Promise((okFn, errFn) => {
 	}, ms);
 });
 const noop = () => {};
-const hookedPromise = (p, s, e0, e1) => {
-	s();
+const hookedPromise = (p, tag, s, e0, e1) => {
+	const key = (new Date()).toISOString() + ' | ' + tag;
+	s(key);
 	return p.then(
 		v => {
-			e0();
+			e0(key);
 			return v;
 		},
 		e => {
-			e1();
+			e1(key);
 			throw e;
 		},
 	);

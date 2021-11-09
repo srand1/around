@@ -11,6 +11,8 @@ ReactDOM.render(
       domain="dev-9vl71yeh.us.auth0.com"
       clientId="pwqZUxVbMEoEOlJO7O3A7ZNR9dhmD2Xk"
       redirectUri={window.location.href}
+      audience="https://dev-9vl71yeh.us.auth0.com/api/v2/"
+      scope="read:current_user"
     >
       <C />
     </Auth0Provider>

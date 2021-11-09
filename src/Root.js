@@ -10,7 +10,7 @@ const UnusedName = () => {
 		ordered: [],
 		byKey: {},
 	});
-	const _track = (p, tag) => hookedPromise(
+	const _track = (tag, p) => hookedPromise(
 		p, tag,
 		key => setJobs(jobsPrev => {
 			const byKey = {...jobsPrev.byKey, [key]: jobsPrev.ordered.length};
@@ -38,18 +38,35 @@ const UnusedName = () => {
 		}),
 	);
 	const [msgsView, setMsgs] = useState([]);
-	const { user, isAuthenticated, isLoading } = useAuth0();
+	const { isLoading, isAuthenticated, user, getAccessTokenSilently } = useAuth0();
 
 	const clicked = async () => {
-		const v = await _track(valueErrInMs('a', 2000), 'valueErrInMs');
+		const v = await _track('valueErrInMs', valueErrInMs('a', 2000));
 		setMsgs(msgsPrev => [...msgsPrev, v+msgsPrev.length]);
+	};
+	const req = async () => {
+		const domain = "dev-9vl71yeh.us.auth0.com";
+		const userDetailsByIdUrl = `https://${domain}/api/v2/users/${user.sub}`;
+		const accessToken = await _track('getAT', getAccessTokenSilently({
+			audience: `https://${domain}/api/v2/`,
+			scope: "read:current_user",
+		}));
+		const metadataResponse = await _track('f$user', fetch(userDetailsByIdUrl, {
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+			},
+		}));
+		const { user_metadata } = await _track('j$user', metadataResponse.json());
+		console.log(user_metadata);
 	};
 
 	return (<div>
 		<AsyncList jobs={jobsView.ordered} />
 		<button onClick={clicked}>X</button>
 		<LoginButton />
-		{isLoading?'loading':(!isAuthenticated?'unAuth':user.email)}
+		{isLoading?'loading':(!isAuthenticated?'unAuth':(
+			<button onClick={req}>{user.email}</button>
+		))}
 		<LogoutButton />
 		<p>{msgsView.join(' | ')}</p>
 	</div>);

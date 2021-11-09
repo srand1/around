@@ -1,5 +1,8 @@
 import {useState} from 'react';
 import AsyncList from './AsyncList';
+import LoginButton from './LoginButton';
+import LogoutButton from './LogoutButton';
+import { useAuth0 } from "@auth0/auth0-react";
 import {valueErrInMs, hookedPromise} from './reuse/uncat';
 
 const UnusedName = () => {
@@ -35,6 +38,7 @@ const UnusedName = () => {
 		}),
 	);
 	const [msgsView, setMsgs] = useState([]);
+	const { user, isAuthenticated, isLoading } = useAuth0();
 
 	const clicked = async () => {
 		const v = await _track(valueErrInMs('a', 2000), 'valueErrInMs');
@@ -44,6 +48,9 @@ const UnusedName = () => {
 	return (<div>
 		<AsyncList jobs={jobsView.ordered} />
 		<button onClick={clicked}>X</button>
+		<LoginButton />
+		{isLoading?'loading':(!isAuthenticated?'unAuth':user.email)}
+		<LogoutButton />
 		<p>{msgsView.join(' | ')}</p>
 	</div>);
 };
